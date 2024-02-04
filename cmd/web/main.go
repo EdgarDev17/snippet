@@ -29,7 +29,7 @@ func main() {
 	// cuando se inicia una aplicacion Go
 	addr := flag.String("addr", ":4000", "HTTP NETWORK ADDRESS")
 
-	logger.Info("Server is runnin on", "addr", *addr)
+	logger.Info("Server is runnin on port", "addr", *addr)
 
 	// Antes de usar las comman line flags debes convertirlas
 	flag.Parse()
