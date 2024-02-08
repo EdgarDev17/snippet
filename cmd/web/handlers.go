@@ -54,5 +54,16 @@ func (app *Application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Create a specific snippet..."))
+	title:= "titulo de prueba"
+	content:= "este contenido es de prueba"
+	expires:= 8
+
+	id, err := app.snippets.Insert(title, content, expires)
+
+	if err != nil {
+		app.logger.Error(err.Error())
+		return
+	}
+	
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 }
