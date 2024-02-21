@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// mapeamos la tabla de la base de datos
 type Snippet struct {
 	ID      int
 	Title   string
@@ -14,6 +15,7 @@ type Snippet struct {
 	Expires time.Time
 }
 
+// creamos una struct que sirve para ir a traer la instancia de la base de datos
 type SnippetModel struct {
 	DB *sql.DB
 }

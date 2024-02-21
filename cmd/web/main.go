@@ -15,15 +15,15 @@ import (
 // de Dependency injection
 
 type Application struct {
-	logger *slog.Logger
+	logger   *slog.Logger
 	snippets *models.SnippetModel
-
 }
 
 func main() {
 
-	
 	// Creando un command line flag, sirve para enviar variables desde la terminal
+	// lo unico que tienes que hacer es importar el paquete flag, luego asignar todas
+	// las flags que necesites
 	addr := flag.String("addr", ":4000", "HTTP NETWORK ADDRESS")
 	dsn := flag.String("dsn", "web:root@/snippetbox?parseTime=True", "This is the database path string")
 
@@ -32,15 +32,16 @@ func main() {
 	logger := slog.New(loggerHandler)
 
 	db, err := databaseConnection(*dsn)
-	
+
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 
-	// cerramos la base de daots
+	// cerramos la base de datos, lo que hace la palabra clave defer es esperar a que la funcion retorne
+	// para ejevutar db.close()
 	defer db.Close()
-	
+
 	// creas una instancia para decirle a la struct con que logger se tiene que vincular
 	app := &Application{
 		logger: logger,
@@ -49,7 +50,6 @@ func main() {
 	}
 
 	logger.Info("Server is runnin on port", "addr", *addr)
-
 
 	// Antes de usar las comman line flags debes convertirlas
 	flag.Parse()
@@ -61,23 +61,21 @@ func main() {
 	os.Exit(1) // if an error occurs the server stop running
 }
 
-
 // @param dsn -> this is the database path
-func databaseConnection(dsn string)(*sql.DB, error){
+func databaseConnection(dsn string) (*sql.DB, error) {
 
-	db, err:= sql.Open("mysql",dsn)
+	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
 		return nil, err
 	}
 
 	err = db.Ping()
-	
+
 	if err != nil {
-	db.Close()
-	return nil, err
+		db.Close()
+		return nil, err
 	}
-	
+
 	return db, nil
 }
-

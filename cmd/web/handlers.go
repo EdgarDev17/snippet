@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	// "html/template"
+	"html/template"
 	// "log"
 	"net/http"
 	"strconv"
@@ -50,6 +50,7 @@ func (app *Application) home(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) snippetView(w http.ResponseWriter, r *http.Request) {
 
+	// strconv.Atoi() convierte un string a un numero int
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 
 	if err != nil || id < 1 {
@@ -68,8 +69,33 @@ func (app *Application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// estos son los archivos estaticos que se enviaran, agrega todos los que se deben enviar
+	// al cliente, desde esta ruta llamada snippetView
+
+	files := []string{
+		"./ui/html/base.html",
+		"./ui/html/nav.html",
+		"./ui/html/pages/view.html",
+	}
+
+	templateFiles, err := template.ParseFiles(files...)
+
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// toma todos los archivos estaticos (html o tmpl)
+	// y los convierte en uno solo, para luego enviarlos
+	// al cliente
+	err = templateFiles.ExecuteTemplate(w, "base", snippet)
+
+	if err != nil {
+		app.serverError(w, r, err)
+	}
+
 	// Write the snippet data as a plain-text HTTP response body.
-	fmt.Fprintf(w, "%+v", snippet)
+	// fmt.Fprintf(w, "%+v", snippet)
 
 }
 
