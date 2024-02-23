@@ -1,13 +1,19 @@
-{{define "title"}}Snippet #{{.ID}}{{end}} {{define "main"}}
+{{define "title"}}Snippet #{{.Snippet.ID}}{{end}} {{define "main"}}
 <div class="snippet">
-	<div class="metadata">
-		<strong>{{.Title}}</strong>
-		<span>#{{.ID}}</span>
+	<!-- With nos ayuda para verificar si existe un Snippet, si es true, entonces renderiza los datos -->
+	<!-- al usar with, el valor de . se vuelve Snippet, entonces podemos acceder a sus datos asi: .Title -->
+	{{with .Snippet}}
+	<div class="snippet">
+		<div class="metadata">
+			<strong>{{.Title}}</strong>
+			<span>#{{.ID}}</span>
+		</div>
+		<pre><code>{{.Content}}</code></pre>
+		<div class="metadata">
+			<time>Created: {{.Created}}</time>
+			<time>Expires: {{.Expires}}</time>
+		</div>
 	</div>
-	<pre><code>{{.Content}}</code></pre>
-	<div class="metadata">
-		<time>Created: {{.Created}}</time>
-		<time>Expires: {{.Expires}}</time>
-	</div>
+	{{end}}
 </div>
 {{end}}

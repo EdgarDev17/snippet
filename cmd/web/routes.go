@@ -12,7 +12,7 @@ func (app Application) routes() *http.ServeMux {
 
 	// creating a mux help you to create routers its like a router
 	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/view", app.snippetView)
+	mux.HandleFunc("/snippet/view", app.snippetView)
 	mux.HandleFunc("/create", app.snippetCreate)
 
 	// Use the mux.Handle() function to register the file server as the handler for

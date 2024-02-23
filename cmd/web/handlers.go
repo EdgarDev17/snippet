@@ -20,32 +20,33 @@ func (app *Application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	snippets, err := app.snippets.Lastest()
+	files := []string{
+		"./ui/html/base.html",
+		"./ui/html/main.html",
+		"./ui/html/nav.html",
+		"./ui/html/pages/home.html",
+	}
 
+	snippets, err := app.snippets.Lastest()
 	if err != nil {
 		app.logger.Error(err.Error())
 	}
 
-	for _, currentSnippet := range snippets {
-		fmt.Fprintf(w, "%+v\n", currentSnippet)
+	templateHandler, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, r, err)
 	}
 
-	// 👇🏽 el archivo base debe ir primero
-	// files := []string{"./ui/html/base.tmpl", "./ui/html/home.tmpl", "./ui/html/nav.html"}
-	// templateSet, err := template.ParseFiles(files...) // 👈🏽 esto "..." es un varidic argument
+	templateData := TemplateData{
+		Snippets: snippets,
+	}
 
-	// if err != nil {
-	// 	log.Println(err)
-	// 	http.Error(w, "Oops internal error", http.StatusInternalServerError)
-	// 	return
-	// }
+	err = templateHandler.ExecuteTemplate(w, "base", templateData)
 
-	// err = templateSet.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
 
-	// if err != nil {
-	// 	log.Print(err)
-	// 	http.Error(w, "Opps internal error", http.StatusInternalServerError)
-	// }
 }
 
 func (app *Application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -83,12 +84,18 @@ func (app *Application) snippetView(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, r, err)
 		return
+
+	}
+
+	// creamos una instancia sobre los datos dinamicos que enviamos desde el server
+	templateData := TemplateData{
+		Snippet: snippet,
 	}
 
 	// toma todos los archivos estaticos (html o tmpl)
 	// y los convierte en uno solo, para luego enviarlos
 	// al cliente
-	err = templateFiles.ExecuteTemplate(w, "base", snippet)
+	err = templateFiles.ExecuteTemplate(w, "base", templateData) // ¿por que templateData? por que la funcion execute template unicamente permite, pasarle un modelo, y en apps reales tendremos mas de un modelo.
 
 	if err != nil {
 		app.serverError(w, r, err)
