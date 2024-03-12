@@ -9,8 +9,9 @@ import (
 )
 
 type TemplateData struct {
-	Snippet  models.Snippet
-	Snippets []models.Snippet
+	Snippet     models.Snippet
+	Snippets    []models.Snippet
+	CurrentYear int
 }
 
 // la función se encarga de guardar los templates html en la cache
@@ -38,16 +39,18 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		// and assign it to the name variable.
 		name := filepath.Base(page)
 
-		// Create a slice containing the filepaths for our base template, any
-		// partials and the page.
-		files := []string{
-			"./ui/html/base.html",
-			"./ui/html/nav.html",
-			page,
+		ts, err := template.ParseFiles("./ui/html/base.html")
+		if err != nil {
+			return nil, err
 		}
 
-		// Parse the files into a template set.
-		ts, err := template.ParseFiles(files...)
+		ts, err = ts.ParseGlob("./ui/html/partials/*.html")
+		if err != nil {
+			return nil, err
+		}
+
+		// Call ParseFiles() *on this template set* to add the
+		ts, err = ts.ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}

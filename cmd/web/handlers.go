@@ -25,9 +25,10 @@ func (app *Application) home(w http.ResponseWriter, r *http.Request) {
 		app.logger.Error(err.Error())
 	}
 
-	app.render(w, r, http.StatusOK, "home.html", TemplateData{
-		Snippets: snippets,
-	})
+	data := app.newTemplateData(r)
+	data.Snippets = snippets
+
+	app.render(w, r, http.StatusOK, "home.html", data)
 }
 
 // se encarga de manejar la pagina donde se muestra un snippet individual
@@ -51,12 +52,10 @@ func (app *Application) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	// creamos una instancia sobre los datos dinamicos que enviamos desde el server
-	templateData := TemplateData{
-		Snippet: snippet,
-	}
 
-	app.render(w, r, http.StatusOK, "view.html", templateData)
+	data := app.newTemplateData(r)
+	data.Snippet = snippet
+	app.render(w, r, http.StatusOK, "view.html", data)
 
 }
 
