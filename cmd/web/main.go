@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
@@ -15,8 +16,9 @@ import (
 // de Dependency injection
 
 type Application struct {
-	logger   *slog.Logger
-	snippets *models.SnippetModel
+	logger        *slog.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -42,11 +44,19 @@ func main() {
 	// para ejevutar db.close()
 	defer db.Close()
 
+	// inicializamos los templates desde la cache
+	templates, err := newTemplateCache()
+
+	if err != nil {
+		logger.Error(err.Error())
+	}
+
 	// creas una instancia para decirle a la struct con que logger se tiene que vincular
 	app := &Application{
 		logger: logger,
 		//         instanciando la clase SnippetModel
-		snippets: &models.SnippetModel{DB: db},
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templates,
 	}
 
 	logger.Info("Server is runnin on port", "addr", *addr)

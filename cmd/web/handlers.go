@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"html/template"
 	// "log"
 	"net/http"
 	"strconv"
@@ -20,35 +19,18 @@ func (app *Application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/base.html",
-		"./ui/html/main.html",
-		"./ui/html/nav.html",
-		"./ui/html/pages/home.html",
-	}
-
 	snippets, err := app.snippets.Lastest()
+
 	if err != nil {
 		app.logger.Error(err.Error())
 	}
 
-	templateHandler, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, r, err)
-	}
-
-	templateData := TemplateData{
+	app.render(w, r, http.StatusOK, "home.html", TemplateData{
 		Snippets: snippets,
-	}
-
-	err = templateHandler.ExecuteTemplate(w, "base", templateData)
-
-	if err != nil {
-		app.serverError(w, r, err)
-	}
-
+	})
 }
 
+// se encarga de manejar la pagina donde se muestra un snippet individual
 func (app *Application) snippetView(w http.ResponseWriter, r *http.Request) {
 
 	// strconv.Atoi() convierte un string a un numero int
@@ -69,40 +51,12 @@ func (app *Application) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
-	// estos son los archivos estaticos que se enviaran, agrega todos los que se deben enviar
-	// al cliente, desde esta ruta llamada snippetView
-
-	files := []string{
-		"./ui/html/base.html",
-		"./ui/html/nav.html",
-		"./ui/html/pages/view.html",
-	}
-
-	templateFiles, err := template.ParseFiles(files...)
-
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-
-	}
-
 	// creamos una instancia sobre los datos dinamicos que enviamos desde el server
 	templateData := TemplateData{
 		Snippet: snippet,
 	}
 
-	// toma todos los archivos estaticos (html o tmpl)
-	// y los convierte en uno solo, para luego enviarlos
-	// al cliente
-	err = templateFiles.ExecuteTemplate(w, "base", templateData) // ¿por que templateData? por que la funcion execute template unicamente permite, pasarle un modelo, y en apps reales tendremos mas de un modelo.
-
-	if err != nil {
-		app.serverError(w, r, err)
-	}
-
-	// Write the snippet data as a plain-text HTTP response body.
-	// fmt.Fprintf(w, "%+v", snippet)
+	app.render(w, r, http.StatusOK, "view.html", templateData)
 
 }
 

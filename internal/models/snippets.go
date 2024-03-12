@@ -39,6 +39,7 @@ func (model SnippetModel) Insert(title string, content string, expires int) (int
 	return int(id), nil
 }
 
+// GetById() returns a snippet of type Snippet{}
 func (model SnippetModel) GetById(id int) (Snippet, error) {
 
 	// creamos la consulta SQL
@@ -69,7 +70,7 @@ func (model SnippetModel) GetById(id int) (Snippet, error) {
 	return snippet, nil
 }
 
-// This will return the 10 most recently snippets
+// Lastest() will return the top 10 lastest snippets
 func (model SnippetModel) Lastest() ([]Snippet, error) {
 
 	sqlQuery := `SELECT id, title, content, created, expires FROM snippets
