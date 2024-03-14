@@ -2,7 +2,7 @@ package main
 
 import "net/http"
 
-func (app Application) routes() *http.ServeMux {
+func (app Application) routes() http.Handler {
 
 	// al instanciar un mux, este nos permite crear rutas y mas.
 	mux := http.NewServeMux()
@@ -19,5 +19,6 @@ func (app Application) routes() *http.ServeMux {
 	// all URL paths that start with "/static/"
 	mux.Handle("/static/", http.StripPrefix("/static", fileServerHandler))
 
-	return mux
+	// Cubrimos nuestra cadena(chain) existente con el nuevo middleware logginRequest
+	return app.logginRequest(secureHandlers(mux))
 }
